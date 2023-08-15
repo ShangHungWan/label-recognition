@@ -24,11 +24,12 @@ def send_request(text: str):
         return
     result = m.group(0)
     if result:
-        # hacky way to ignore response
         try:
-            requests.get(SERVER_URL, {PARAM_NAME: result}, timeout=0.0000000001)
-        except Exception:
-            pass
+            requests.get(SERVER_URL, {PARAM_NAME: result})
+            print(["[send_request]"])
+        except Exception as e:
+            print("[send_request error]:")
+            print(e)
 
 
 def main():
