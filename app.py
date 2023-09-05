@@ -1,21 +1,20 @@
 import cv2
 import pytesseract
 from pytesseract import Output
-from picamera2 import Picamera2
 
 import re
 import requests
 
-LANG = "label"
+LANG = "eng_tess"
 CONFIG = (
-    "--psm 7 --oem 3 -c tessedit_char_whitelist=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ\\-"
+    "--psm 6 --oem 2 -c tessedit_char_whitelist=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ\\-"
 )
 CONF_THRESHOLD = 60
 
 SERVER_URL = "http://localhost:9487"
 PARAM_NAME = "A"
 
-TEXT_PATTERN = "\\d{5}-[A-Z]"
+TEXT_PATTERN = "\\d{5}-[A-Z\\d]"
 
 
 def send_request(text: str):
@@ -33,18 +32,11 @@ def send_request(text: str):
 
 
 def main():
-    picam2 = Picamera2()
-    picam2.configure(
-        picam2.create_preview_configuration(
-            main={"format": "XRGB8888", "size": (320, 240)}
-        )
-    )
-    picam2.start()
-
     cv2.startWindowThread()
+    cap = cv2.VideoCapture(0)
 
-    while True:
-        frame = picam2.capture_array()
+    while cap.isOpened():
+        ret, frame = cap.read()
 
         d = pytesseract.image_to_data(
             frame, output_type=Output.DICT, lang=LANG, config=CONFIG
